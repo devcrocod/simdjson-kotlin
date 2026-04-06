@@ -1,0 +1,45 @@
+name: Release to Maven Central
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-natives:
+    uses: ./.github/workflows/build-natives.yml
+
+  publish:
+    needs: build-natives
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Copy Android natives to jniLibs
+        run: |
+          mkdir -p simdjson-kotlin/src/androidMain/jniLibs/arm64-v8a
+          mkdir -p simdjson-kotlin/src/androidMain/jniLibs/x86_64
+          cp simdjson-native/build-android-arm64-v8a/libsimdjson_jni.so \
+             simdjson-kotlin/src/androidMain/jniLibs/arm64-v8a/
+          cp simdjson-native/build-android-x86_64/libsimdjson_jni.so \
+             simdjson-kotlin/src/androidMain/jniLibs/x86_64/
+
+      - name: Publish
+        run: ./gradlew publishAllPublicationsToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}

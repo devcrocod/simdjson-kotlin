@@ -1,0 +1,93 @@
+name: Build Natives
+
+on:
+  push:
+    branches: [main]
+    paths: [simdjson-native/**]
+  pull_request:
+    paths: [simdjson-native/**]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: build-natives-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.artifact }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # JNI shared libs (4 platforms)
+          - runner: macos-14
+            task: ":simdjson-kotlin:buildSimdjsonJniDesktop"
+            artifact: native-jni-macos-arm64
+            output: simdjson-native/build-jvm-macos-aarch64/libsimdjson_jni.dylib
+
+          - runner: ubuntu-latest
+            task: ":simdjson-kotlin:buildSimdjsonJniDesktop"
+            artifact: native-jni-linux-x64
+            output: simdjson-native/build-jvm-linux-x86_64/libsimdjson_jni.so
+
+          - runner: ubuntu-24.04-arm
+            task: ":simdjson-kotlin:buildSimdjsonJniDesktop"
+            artifact: native-jni-linux-arm64
+            output: simdjson-native/build-jvm-linux-aarch64/libsimdjson_jni.so
+
+          - runner: windows-latest
+            task: ":simdjson-kotlin:buildSimdjsonJniDesktop"
+            artifact: native-jni-windows-x64
+            output: simdjson-native/build-jvm-windows-x86_64/simdjson_jni.dll
+
+          # Kotlin/Native static libs
+          - runner: macos-14
+            task: ":simdjson-kotlin:buildSimdjsonNativeMacosArm64"
+            artifact: native-kn-macos-arm64
+            output: simdjson-native/build/libsimdjson_c.a
+
+          - runner: ubuntu-latest
+            task: ":simdjson-kotlin:buildSimdjsonNativeLinuxX64"
+            artifact: native-kn-linux-x64
+            output: simdjson-native/build-linux-x64/libsimdjson_c.a
+
+          # iOS — both targets in one build
+          - runner: macos-14
+            task: ":simdjson-kotlin:buildSimdjsonNativeIos"
+            artifact: native-kn-ios
+            output: |
+              simdjson-native/build-ios-arm64/libsimdjson_c.a
+              simdjson-native/build-ios-simulator-arm64/libsimdjson_c.a
+
+          # Android — both ABIs in one build
+          - runner: ubuntu-latest
+            task: ":simdjson-kotlin:buildSimdjsonJni"
+            artifact: native-android
+            output: |
+              simdjson-native/build-android-arm64-v8a/libsimdjson_jni.so
+              simdjson-native/build-android-x86_64/libsimdjson_jni.so
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew ${{ matrix.task }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.output }}
+          if-no-files-found: error

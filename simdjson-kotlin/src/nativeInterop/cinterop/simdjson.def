@@ -1,0 +1,3 @@
+headers = simdjson_c.h
+headerFilter = simdjson_c.h
+staticLibraries = libsimdjson_c.a

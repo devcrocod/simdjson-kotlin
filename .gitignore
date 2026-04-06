@@ -1,0 +1,63 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Gradle, Kotlin, and JVM build outputs
+.gradle/
+.kotlin/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+hs_err_pid*
+replay_pid*
+
+# Native cross-compilation build outputs
+build-*/
+__cmake_systeminformation/
+
+# Generated JNI native libraries (build artifacts, not source)
+simdjson-kotlin/src/androidMain/jniLibs/
+
+# Kotlin/JS, Wasm, and docs tooling
+/kotlin-js-store/
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.pnp.*
+.mintlify/
+
+# Apple toolchains
+DerivedData/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.gpg
+*.jks
+*.keystore
+
+# Logs and temporary files
+*.log
+*.swp
+*.swo
+*.tmp
+*~
+
+.claude

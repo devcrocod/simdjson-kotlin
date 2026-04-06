@@ -1,0 +1,3 @@
+[submodule "simdjson-kotlin/testdata/simdjson-data"]
+	path = simdjson-kotlin/testdata/simdjson-data
+	url = https://github.com/simdjson/simdjson-data
