@@ -21,7 +21,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run JVM tests (Vector API backend)
         run: ./gradlew :simdjson-kotlin:jvmTest
 
@@ -35,7 +35,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run JVM tests (JNI backend)
         run: ./gradlew :simdjson-kotlin:jvmTestJni
 
@@ -57,7 +57,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run native tests
         run: ./gradlew :simdjson-kotlin:${{ matrix.target }}
 
@@ -71,7 +71,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run iOS simulator tests
         run: ./gradlew :simdjson-kotlin:iosSimulatorArm64Test
 
@@ -85,7 +85,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run Android host tests
         run: ./gradlew :simdjson-kotlin:testAndroidHostTest
 
@@ -99,6 +99,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Run serialization tests
         run: ./gradlew :simdjson-kotlin-serialization:allTests
