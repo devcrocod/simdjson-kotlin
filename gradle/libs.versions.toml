@@ -8,7 +8,7 @@ maven-publish = "0.36.0"
 kotlinxBenchmark = "0.4.16"
 kotest = "6.1.11"
 kotlinx-serialization = "1.10.0"
-jackson = "2.18.2"
+jackson = "2.21.3"
 
 [libraries]
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
