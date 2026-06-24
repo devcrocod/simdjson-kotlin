@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("simdjson.kmp-base")
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.maven.publish)
+    id("simdjson.maven-publish")
     id("jni-runtime-publications")
     id("jni-variant-attributes")
     id("jni-uber-publication")
@@ -24,21 +24,10 @@ val generateVersionProperties by tasks.registering {
 }
 
 kotlin {
-    jvmToolchain(25)
-
     jvm {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
             freeCompilerArgs.addAll("-Xadd-modules=jdk.incubator.vector", "-Xexpect-actual-classes")
-        }
-
-        testRuns.named("test") {
-            executionTask.configure {
-                useJUnitPlatform()
-                jvmArgs("--add-modules", "jdk.incubator.vector")
-                maxHeapSize = "2g"
-                systemProperty("simdjson.species", "256")
-            }
         }
     }
 
@@ -131,12 +120,6 @@ kotlin {
 
     sourceSets {
         commonMain { }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlin.test)
-                implementation(libs.kotest.assertions.core)
-            }
-        }
         val jvmAndAndroidMain by creating {
             dependsOn(commonMain.get())
         }
@@ -242,23 +225,6 @@ val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
     }
 }
 
-// --- JNI backend test task ---
-
-val jvmTestJni by tasks.registering(Test::class) {
-    description = "Run JVM tests with JNI backend"
-    group = "verification"
-
-    val jvmTest = tasks.named<Test>("jvmTest")
-    testClassesDirs = jvmTest.get().testClassesDirs
-    classpath = jvmTest.get().classpath
-
-    useJUnitPlatform()
-    jvmArgs("--add-modules", "jdk.incubator.vector")
-    maxHeapSize = "2g"
-    systemProperty("simdjson.backend", "jni")
-    systemProperty("simdjson.species", "256")
-}
-
 // --- Kotlin/Native static library build tasks for cinterop ---
 
 val nativeStaticInputs = listOf(
@@ -329,12 +295,6 @@ tasks.named("cinteropSimdjsonMacosArm64") { dependsOn(buildSimdjsonNativeMacosAr
 tasks.named("cinteropSimdjsonIosArm64") { dependsOn(buildSimdjsonNativeIos) }
 tasks.named("cinteropSimdjsonIosSimulatorArm64") { dependsOn(buildSimdjsonNativeIos) }
 tasks.named("cinteropSimdjsonLinuxX64") { dependsOn(buildSimdjsonNativeLinuxX64) }
-
-// Exclude JNI runtime Maven artifact from test configurations — the native library
-// is provided via local build resources on the classpath instead.
-configurations.matching { it.name.contains("jvmTestRuntime") }.configureEach {
-    exclude(group = project.group.toString(), module = "simdjson-kotlin-jni-runtime")
-}
 
 // Wire desktop JNI build so tests can load the native library from the classpath.
 // The native lib lives under build/jniNatives/natives/{os}-{arch}/ — NOT in src/jvmMain/resources/,
@@ -407,14 +367,4 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
     // simctl spawn only passes SIMCTL_CHILD_-prefixed vars to the spawned process
     // (it strips the prefix, so the binary sees PROJECT_DIR).
     environment("SIMCTL_CHILD_PROJECT_DIR", projectDir.absolutePath)
-}
-
-mavenPublishing {
-    publishToMavenCentral(automaticRelease = true)
-
-    if (providers.gradleProperty("signing.keyId").isPresent ||
-        providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent
-    ) {
-        signAllPublications()
-    }
 }

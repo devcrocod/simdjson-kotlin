@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("org.jetbrains.kotlin.multiplatform")
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlinx.benchmark)
     alias(libs.plugins.kotlin.allopen)
 }
 
-configure<AllOpenExtension> {
+allOpen {
     annotation("org.openjdk.jmh.annotations.State")
 }
 

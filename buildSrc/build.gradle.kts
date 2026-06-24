@@ -7,3 +7,8 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
 }
+
+dependencies {
+    implementation(libs.kotlin.gradle)
+    implementation(libs.vanniktech.maven.publish)
+}
