@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.dokka)
     id("simdjson.maven-publish")
     id("jni-runtime-publications")
-    id("jni-variant-attributes")
-    id("jni-uber-publication")
     id("simdjson.host-native-kmp")
 }
 
@@ -308,8 +306,8 @@ tasks.named<Test>("jvmTestJni") {
     classpath += files(jniNativesDir)
 }
 
-// Wire desktop JNI build so the host-platform runtime JAR includes the native library.
-// Only the current host's JAR task needs this — cross-platform JARs are filled by CI.
+// Wire desktop JNI build so the host native lands in the runtime JARs; cross-platform JARs are filled by CI.
+tasks.named("jniRuntimeJar") { dependsOn(buildSimdjsonJniDesktop) }
 val hostJniTarget = JNI_TARGETS.find { t ->
     val hostOs = when {
         org.gradle.internal.os.OperatingSystem.current().isMacOsX -> "macos"

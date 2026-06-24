@@ -4,41 +4,72 @@ plugins {
     `maven-publish`
 }
 
-JNI_TARGETS.forEach { target ->
+val requireAllNatives = (findProperty("simdjson.allTargets") as? String)?.toBoolean() ?: false
+
+fun jniNativeDir(target: JniTarget) =
+    rootProject.layout.projectDirectory.dir("simdjson-native/build-jvm-${target.os}-${target.arch}")
+
+val perPlatformJars = JNI_TARGETS.associateWith { target ->
     tasks.register<Jar>("jniRuntimeJar-${target.artifactSuffix}") {
-        description = "Packages JNI native library for ${target.artifactSuffix} into a JAR"
+        description = "Packages the JNI native library for ${target.artifactSuffix} into a classifier JAR"
         group = "build"
 
-        archiveBaseName.set("simdjson-kotlin-jni-runtime-${target.artifactSuffix}")
-        archiveClassifier.set("")
+        archiveBaseName.set("simdjson-kotlin-jni-runtime")
+        archiveClassifier.set(target.artifactSuffix)
 
-        val nativeDir = rootProject.layout.projectDirectory.dir("simdjson-native/build-jvm-${target.os}-${target.arch}")
-        from(nativeDir) {
+        from(jniNativeDir(target)) {
             include(target.libFileName)
             into(target.resourceDir)
         }
     }
 }
 
-publishing {
-    publications {
-        JNI_TARGETS.forEach { target ->
-            create<MavenPublication>("jniRuntime-${target.artifactSuffix}") {
-                artifactId = "simdjson-kotlin-jni-runtime-${target.artifactSuffix}"
-                artifact(tasks.named<Jar>("jniRuntimeJar-${target.artifactSuffix}"))
-                // Mark as alias so Gradle's project dependency resolver ignores these
-                // coordinates — mirrors what the KMP plugin does for platform publications.
-                (this as PublicationInternal<*>).setAlias(true)
+val jniRuntimeJar = tasks.register<Jar>("jniRuntimeJar") {
+    description = "Packages all JNI native libraries into a single runtime JAR"
+    group = "build"
+
+    archiveBaseName.set("simdjson-kotlin-jni-runtime")
+    archiveClassifier.set("")
+
+    JNI_TARGETS.forEach { target ->
+        from(jniNativeDir(target)) {
+            include(target.libFileName)
+            into(target.resourceDir)
+        }
+    }
+
+    doFirst {
+        if (requireAllNatives) {
+            val missing = JNI_TARGETS.filterNot { jniNativeDir(it).file(it.libFileName).asFile.exists() }
+            if (missing.isNotEmpty()) {
+                throw GradleException(
+                    "Missing JNI native libraries for: ${missing.joinToString { it.artifactSuffix }}. " +
+                        "Refusing to publish an incomplete simdjson-kotlin-jni-runtime JAR — " +
+                        "ensure build-natives staged every platform's library."
+                )
             }
         }
     }
 }
 
-project.gradle.projectsEvaluated {
-    JNI_TARGETS.forEach { target ->
-        val pubName = "jniRuntime-${target.artifactSuffix}"
-        publishing.publications.named<MavenPublication>(pubName).configure {
-            artifacts.removeAll { it.classifier == "javadoc" }
+val jniRuntimeSourcesJar = tasks.register<Jar>("jniRuntimeSourcesJar") {
+    description = "Empty sources JAR for the JNI runtime module (Maven Central requirement)"
+    group = "build"
+    archiveBaseName.set("simdjson-kotlin-jni-runtime")
+    archiveClassifier.set("sources")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("jniRuntime") {
+            artifactId = "simdjson-kotlin-jni-runtime"
+            artifact(jniRuntimeJar)
+            artifact(jniRuntimeSourcesJar)
+            JNI_TARGETS.forEach { target ->
+                artifact(perPlatformJars.getValue(target))
+            }
+            // Alias so project(":simdjson-kotlin") dependencies don't clash on coordinates.
+            (this as PublicationInternal<*>).setAlias(true)
         }
     }
 }
