@@ -408,3 +408,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
     // (it strips the prefix, so the binary sees PROJECT_DIR).
     environment("SIMCTL_CHILD_PROJECT_DIR", projectDir.absolutePath)
 }
+
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+
+    if (providers.gradleProperty("signing.keyId").isPresent ||
+        providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent
+    ) {
+        signAllPublications()
+    }
+}

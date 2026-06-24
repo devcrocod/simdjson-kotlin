@@ -53,3 +53,13 @@ val jvmTestJni by tasks.registering(Test::class) {
     systemProperty("simdjson.backend", "jni")
     systemProperty("simdjson.species", "256")
 }
+
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+
+    if (providers.gradleProperty("signing.keyId").isPresent ||
+        providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent
+    ) {
+        signAllPublications()
+    }
+}
