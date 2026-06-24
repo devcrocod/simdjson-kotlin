@@ -13,8 +13,8 @@ esac
 
 # Detect architecture
 case "$(uname -m)" in
-    arm64|aarch64) ARCH="aarch64" ;;
-    x86_64|amd64)  ARCH="x86_64" ;;
+    arm64|aarch64) ARCH="arm64" ;;
+    x86_64|amd64)  ARCH="x64" ;;
     *) echo "Unsupported arch: $(uname -m)" >&2; exit 1 ;;
 esac
 

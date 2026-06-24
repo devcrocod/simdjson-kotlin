@@ -13,9 +13,9 @@ internal object NativeLibLoader {
     private const val LIB_BASE_NAME = "simdjson_jni"
 
     private val SUPPORTED_PLATFORMS = listOf(
-        "macos-aarch64",
-        "linux-x86_64", "linux-aarch64",
-        "windows-x86_64"
+        "macos-arm64",
+        "linux-x64", "linux-arm64",
+        "windows-x64"
     )
 
     @Volatile
@@ -148,8 +148,8 @@ internal object NativeLibLoader {
     private fun detectArch(): String {
         val arch = System.getProperty("os.arch", "")
         return when (arch) {
-            "aarch64", "arm64" -> "aarch64"
-            "amd64", "x86_64" -> "x86_64"
+            "aarch64", "arm64" -> "arm64"
+            "amd64", "x86_64" -> "x64"
             else -> throw NativeLibraryException(
                 "Unsupported platform: ${System.getProperty("os.name", "unknown")}/$arch\n" +
                         "Supported platforms: ${SUPPORTED_PLATFORMS.joinToString(", ")}."

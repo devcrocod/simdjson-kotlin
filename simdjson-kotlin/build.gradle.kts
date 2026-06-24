@@ -205,8 +205,8 @@ val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
             else -> error("Unsupported OS")
         }
         val arch = when (System.getProperty("os.arch")) {
-            "aarch64", "arm64" -> "aarch64"
-            "amd64", "x86_64" -> "x86_64"
+            "aarch64", "arm64" -> "arm64"
+            "amd64", "x86_64" -> "x64"
             else -> error("Unsupported arch: ${System.getProperty("os.arch")}")
         }
         val ext = when (os) {
@@ -316,8 +316,8 @@ val hostJniTarget = JNI_TARGETS.find { t ->
         else -> ""
     }
     val hostArch = when (System.getProperty("os.arch")) {
-        "aarch64", "arm64" -> "aarch64"
-        "amd64", "x86_64" -> "x86_64"
+        "aarch64", "arm64" -> "arm64"
+        "amd64", "x86_64" -> "x64"
         else -> ""
     }
     t.os == hostOs && t.arch == hostArch
@@ -338,8 +338,8 @@ tasks.matching { it.name == "testAndroidHostTest" }.configureEach {
         else -> "unsupported"
     }
     val arch = when (System.getProperty("os.arch")) {
-        "aarch64", "arm64" -> "aarch64"
-        "amd64", "x86_64" -> "x86_64"
+        "aarch64", "arm64" -> "arm64"
+        "amd64", "x86_64" -> "x64"
         else -> "unsupported"
     }
 
