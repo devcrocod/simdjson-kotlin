@@ -2,7 +2,7 @@ name: Build Natives
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths: [simdjson-native/**]
   pull_request:
     paths: [simdjson-native/**]
