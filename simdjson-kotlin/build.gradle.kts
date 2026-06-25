@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.dokka)
     id("simdjson.maven-publish")
     id("jni-runtime-publications")
-    id("jni-variant-attributes")
-    id("jni-uber-publication")
     id("simdjson.host-native-kmp")
 }
 
@@ -185,6 +183,17 @@ val buildSimdjsonJni by tasks.registering(Exec::class) {
 // the published JVM JAR or into git. Added to the test classpath explicitly.
 val jniNativesDir = layout.buildDirectory.dir("jniNatives")
 
+// On Windows a bare "bash" resolves to C:\Windows\System32\bash.exe (the WSL launcher),
+// which has no distro on CI runners. Prefer Git Bash there.
+fun bashExecutable(): String {
+    if (!org.gradle.internal.os.OperatingSystem.current().isWindows) return "bash"
+    return listOfNotNull(
+        System.getenv("ProgramFiles")?.let { "$it\\Git\\bin\\bash.exe" },
+        System.getenv("ProgramW6432")?.let { "$it\\Git\\bin\\bash.exe" },
+        "C:\\Program Files\\Git\\bin\\bash.exe",
+    ).firstOrNull { File(it).exists() } ?: "bash"
+}
+
 val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
     description = "Build simdjson JNI shared library for the current desktop platform"
 
@@ -197,7 +206,7 @@ val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
     )
     outputs.dir(jniNativesDir)
 
-    commandLine("bash", "${nativeDir.asFile.absolutePath}/build-jvm.sh")
+    commandLine(bashExecutable(), "${nativeDir.asFile.absolutePath}/build-jvm.sh")
 
     doLast {
         val os = when {
@@ -207,8 +216,8 @@ val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
             else -> error("Unsupported OS")
         }
         val arch = when (System.getProperty("os.arch")) {
-            "aarch64", "arm64" -> "aarch64"
-            "amd64", "x86_64" -> "x86_64"
+            "aarch64", "arm64" -> "arm64"
+            "amd64", "x86_64" -> "x64"
             else -> error("Unsupported arch: ${System.getProperty("os.arch")}")
         }
         val ext = when (os) {
@@ -308,8 +317,8 @@ tasks.named<Test>("jvmTestJni") {
     classpath += files(jniNativesDir)
 }
 
-// Wire desktop JNI build so the host-platform runtime JAR includes the native library.
-// Only the current host's JAR task needs this — cross-platform JARs are filled by CI.
+// Wire desktop JNI build so the host native lands in the runtime JARs; cross-platform JARs are filled by CI.
+tasks.named("jniRuntimeJar") { dependsOn(buildSimdjsonJniDesktop) }
 val hostJniTarget = JNI_TARGETS.find { t ->
     val hostOs = when {
         org.gradle.internal.os.OperatingSystem.current().isMacOsX -> "macos"
@@ -318,8 +327,8 @@ val hostJniTarget = JNI_TARGETS.find { t ->
         else -> ""
     }
     val hostArch = when (System.getProperty("os.arch")) {
-        "aarch64", "arm64" -> "aarch64"
-        "amd64", "x86_64" -> "x86_64"
+        "aarch64", "arm64" -> "arm64"
+        "amd64", "x86_64" -> "x64"
         else -> ""
     }
     t.os == hostOs && t.arch == hostArch
@@ -340,8 +349,8 @@ tasks.matching { it.name == "testAndroidHostTest" }.configureEach {
         else -> "unsupported"
     }
     val arch = when (System.getProperty("os.arch")) {
-        "aarch64", "arm64" -> "aarch64"
-        "amd64", "x86_64" -> "x86_64"
+        "aarch64", "arm64" -> "arm64"
+        "amd64", "x86_64" -> "x64"
         else -> "unsupported"
     }
 

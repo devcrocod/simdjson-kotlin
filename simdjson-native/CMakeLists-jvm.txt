@@ -31,3 +31,13 @@ target_include_directories(simdjson_jni
 )
 
 set_target_properties(simdjson_jni PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Emit the shared library straight into the build dir. Multi-config generators
+# (Visual Studio) otherwise nest it under a per-config subdir like Release/, but
+# build-jvm.sh and CI expect a fixed path. No-op on single-config generators.
+set_target_properties(simdjson_jni PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}"
+)
