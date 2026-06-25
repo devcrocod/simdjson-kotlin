@@ -54,7 +54,8 @@ jobs:
           - target: macosArm64Test
             runner: macos-14
           - target: linuxX64Test
-            runner: ubuntu-latest
+            runner: ubuntu-22.04
+            cxx: g++-10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -64,6 +65,14 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v6
+      # Kotlin/Native's linuxX64 sysroot ships an old libstdc++ without
+      # std::__throw_bad_array_new_length (GLIBCXX_3.4.29 / GCC 11+). Build the C++
+      # cinterop static lib with g++-10 so that symbol is never referenced and ld.lld links.
+      - name: Install g++-10 (Kotlin/Native-compatible C++ toolchain)
+        if: matrix.cxx
+        run: |
+          sudo apt-get update && sudo apt-get install -y g++-10
+          echo "CXX=g++-10" >> "$GITHUB_ENV"
       - name: Run native tests
         run: ./gradlew :simdjson-kotlin:${{ matrix.target }}
 
