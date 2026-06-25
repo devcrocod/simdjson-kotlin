@@ -13,6 +13,7 @@ object HostDetection {
 
     val isMacOs: Boolean get() = hostOs == "Mac OS X"
     val isLinux: Boolean get() = hostOs == "Linux"
+    val isWindows: Boolean get() = hostOs.startsWith("Windows")
 
     val hostTargets: List<SimdjsonNativeTarget>
         get() = when {
@@ -24,10 +25,12 @@ object HostDetection {
             isLinux -> listOf(
                 SimdjsonNativeTarget.LINUX_X64,
             )
+            // Windows builds only the JVM/JNI desktop artifact; it has no Kotlin/Native targets.
+            isWindows -> emptyList()
             else -> throw GradleException(
                 "Unsupported host OS: $hostOs ($hostArch). " +
                     "Supported: macOS (builds macosArm64, iosArm64, iosSimulatorArm64), " +
-                    "Linux (builds linuxX64)."
+                    "Linux (builds linuxX64), Windows (JVM/JNI only)."
             )
         }
 }
