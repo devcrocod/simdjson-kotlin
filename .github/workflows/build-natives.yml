@@ -2,7 +2,7 @@ name: Build Natives
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths: [simdjson-native/**]
   pull_request:
     paths: [simdjson-native/**]
@@ -52,10 +52,11 @@ jobs:
             artifact: native-kn-macos-arm64
             output: simdjson-native/build/libsimdjson_c.a
 
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             task: ":simdjson-kotlin:buildSimdjsonNativeLinuxX64"
             artifact: native-kn-linux-x64
             output: simdjson-native/build-linux-x64/libsimdjson_c.a
+            cxx: g++-10
 
           # iOS — both targets in one build
           - runner: macos-14
@@ -82,6 +83,14 @@ jobs:
           java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v6
+
+      # Kotlin/Native's linuxX64 sysroot ships an old libstdc++ without
+      # std::__throw_bad_array_new_length (GLIBCXX_3.4.29 / GCC 11+). Build with g++-10.
+      - name: Install g++-10 (Kotlin/Native-compatible C++ toolchain)
+        if: matrix.cxx
+        run: |
+          sudo apt-get update && sudo apt-get install -y g++-10
+          echo "CXX=g++-10" >> "$GITHUB_ENV"
 
       - name: Build
         run: ./gradlew ${{ matrix.task }}
