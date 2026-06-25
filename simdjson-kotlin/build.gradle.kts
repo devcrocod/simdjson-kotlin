@@ -183,6 +183,17 @@ val buildSimdjsonJni by tasks.registering(Exec::class) {
 // the published JVM JAR or into git. Added to the test classpath explicitly.
 val jniNativesDir = layout.buildDirectory.dir("jniNatives")
 
+// On Windows a bare "bash" resolves to C:\Windows\System32\bash.exe (the WSL launcher),
+// which has no distro on CI runners. Prefer Git Bash there.
+fun bashExecutable(): String {
+    if (!org.gradle.internal.os.OperatingSystem.current().isWindows) return "bash"
+    return listOfNotNull(
+        System.getenv("ProgramFiles")?.let { "$it\\Git\\bin\\bash.exe" },
+        System.getenv("ProgramW6432")?.let { "$it\\Git\\bin\\bash.exe" },
+        "C:\\Program Files\\Git\\bin\\bash.exe",
+    ).firstOrNull { File(it).exists() } ?: "bash"
+}
+
 val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
     description = "Build simdjson JNI shared library for the current desktop platform"
 
@@ -195,7 +206,7 @@ val buildSimdjsonJniDesktop by tasks.registering(Exec::class) {
     )
     outputs.dir(jniNativesDir)
 
-    commandLine("bash", "${nativeDir.asFile.absolutePath}/build-jvm.sh")
+    commandLine(bashExecutable(), "${nativeDir.asFile.absolutePath}/build-jvm.sh")
 
     doLast {
         val os = when {
