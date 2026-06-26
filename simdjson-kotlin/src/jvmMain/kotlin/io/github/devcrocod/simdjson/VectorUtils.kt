@@ -30,12 +30,21 @@ internal object VectorUtils {
                 INT_SPECIES = IntVector.SPECIES_256
             }
 
+            "128" -> {
+                BYTE_SPECIES = ByteVector.SPECIES_128
+                INT_SPECIES = IntVector.SPECIES_128
+            }
+
             else -> throw IllegalArgumentException("Unsupported vector species: $species")
         }
     }
 
-    private fun assertSupportForSpecies(species: VectorSpecies<*>) {
-        if (species.vectorShape() != VectorShape.S_256_BIT && species.vectorShape() != VectorShape.S_512_BIT) {
+    fun assertSupportForSpecies(species: VectorSpecies<*>) {
+        val shape = species.vectorShape()
+        if (shape != VectorShape.S_128_BIT &&
+            shape != VectorShape.S_256_BIT &&
+            shape != VectorShape.S_512_BIT
+        ) {
             throw IllegalArgumentException("Unsupported vector species: $species")
         }
     }
@@ -48,4 +57,6 @@ internal object VectorUtils {
         }
         return ByteVector.fromArray(BYTE_SPECIES, result, 0)
     }
+
+    fun preferredBitSize(): Int = BYTE_SPECIES.vectorBitSize()
 }

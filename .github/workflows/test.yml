@@ -26,6 +26,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Run JVM tests (Vector API backend)
         run: ./gradlew :simdjson-kotlin:jvmTest
+      - name: Run JVM tests (Vector API backend, 128-bit species)
+        run: ./gradlew :simdjson-kotlin:jvmTest128
 
   jvm-jni-tests:
     name: JVM — JNI backend

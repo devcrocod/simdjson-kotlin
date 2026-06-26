@@ -43,6 +43,21 @@ tasks.register<Test>("jvmTestJni") {
     systemProperty("simdjson.species", "256")
 }
 
+tasks.register<Test>("jvmTest128") {
+    description = "Run JVM tests with Vector backend and 128-bit species"
+    group = "verification"
+
+    val jvmTest = tasks.named<Test>("jvmTest")
+    testClassesDirs = jvmTest.get().testClassesDirs
+    classpath = jvmTest.get().classpath
+
+    useJUnitPlatform()
+    jvmArgs("--add-modules", "jdk.incubator.vector")
+    maxHeapSize = "2g"
+    systemProperty("simdjson.backend", "vector")
+    systemProperty("simdjson.species", "128")
+}
+
 // Exclude JNI runtime Maven artifact from test configurations — the native library
 // is provided via local build resources on the classpath instead.
 configurations.matching { it.name.contains("jvmTestRuntime") }.configureEach {
