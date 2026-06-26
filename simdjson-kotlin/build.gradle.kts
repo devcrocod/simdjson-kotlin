@@ -316,6 +316,10 @@ tasks.named<Test>("jvmTestJni") {
     dependsOn(buildSimdjsonJniDesktop)
     classpath += files(jniNativesDir)
 }
+tasks.named<Test>("jvmTest128") {
+    dependsOn(buildSimdjsonJniDesktop)
+    classpath += files(jniNativesDir)
+}
 
 // Wire desktop JNI build so the host native lands in the runtime JARs; cross-platform JARs are filled by CI.
 tasks.named("jniRuntimeJar") { dependsOn(buildSimdjsonJniDesktop) }

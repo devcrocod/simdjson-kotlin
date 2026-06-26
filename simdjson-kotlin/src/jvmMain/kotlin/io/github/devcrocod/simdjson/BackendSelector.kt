@@ -2,11 +2,17 @@ package io.github.devcrocod.simdjson
 
 internal object BackendSelector {
     val useJni: Boolean = run {
-        val prop = System.getProperty("simdjson.backend")
-        when (prop) {
+        when (System.getProperty("simdjson.backend")) {
             "jni" -> true
             "vector" -> false
-            else -> Runtime.version().feature() < 24
+            else -> Runtime.version().feature() < 24 || !vectorUsable()
         }
     }
+
+    private fun vectorUsable(): Boolean =
+        try {
+            VectorUtils.preferredBitSize() >= 128
+        } catch (t: Throwable) {
+            false
+        }
 }
