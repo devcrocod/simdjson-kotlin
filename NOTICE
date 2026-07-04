@@ -1,0 +1,17 @@
+=========================================================================
+==  NOTICE file corresponding to the section 4 d of                    ==
+==  the Apache License, Version 2.0,                                   ==
+==  in this case for the simdjson-kotlin library.                      ==
+=========================================================================
+
+simdjson-kotlin library.
+Copyright 2026 devcrocod
+
+This product is a Kotlin Multiplatform port of simdjson
+(https://github.com/simdjson/simdjson), a JSON parsing library using
+SIMD instructions.
+Copyright 2018-2025 The simdjson authors
+
+The JVM implementation is based on simdjson-java
+(https://github.com/simdjson/simdjson-java).
+Copyright 2023 The simdjson-java authors
