@@ -22,6 +22,9 @@ expect class SimdJsonParser(
     /**
      * Parse JSON bytes into a full DOM tree.
      *
+     * The returned tree is fully materialized and independent of this parser:
+     * it remains valid after subsequent [parse]/[iterate] calls and after [close].
+     *
      * @param data JSON input as a byte array (UTF-8 encoded)
      * @param length number of bytes to parse (defaults to full array)
      * @return parsed [JsonValue] representing the root element
@@ -32,6 +35,9 @@ expect class SimdJsonParser(
 
     /**
      * Parse a JSON string into a full DOM tree.
+     *
+     * The returned tree is fully materialized and independent of this parser:
+     * it remains valid after subsequent [parse]/[iterate] calls and after [close].
      *
      * @param json JSON input as a string
      * @return parsed [JsonValue] representing the root element

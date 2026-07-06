@@ -9,139 +9,43 @@ sealed interface JsonValue
 /**
  * JSON object: {"key": value, ...}
  */
-class JsonObject private constructor(
-    private val tape: Tape?,
-    private val tapeIdx: Int,
-    private val stringBuffer: ByteArray?,
-    private val _entries: List<Pair<String, JsonValue>>?
+class JsonObject internal constructor(
+    private val entries: List<Pair<String, JsonValue>>
 ) : JsonValue, Iterable<Pair<String, JsonValue>> {
-
-    internal constructor(tape: Tape, tapeIdx: Int, stringBuffer: ByteArray)
-        : this(tape, tapeIdx, stringBuffer, null)
-
-    internal constructor(entries: List<Pair<String, JsonValue>>)
-        : this(null, 0, null, entries)
 
     /** Number of key-value pairs. */
     val size: Int
-        get() = _entries?.size ?: tape!!.getScopeCount(tapeIdx)
+        get() = entries.size
 
     /** Get value by key, or null if not found. */
-    operator fun get(key: String): JsonValue? {
-        if (_entries != null) {
-            return _entries.firstOrNull { it.first == key }?.second
-        }
-        val keyBytes = key.encodeToByteArray()
-        var idx = tapeIdx + 1
-        val endIdx = tape!!.getMatchingBraceIndex(tapeIdx) - 1
-        while (idx < endIdx) {
-            val sbIdx = tape.getValue(idx).toInt()
-            val len = IntegerUtils.toInt(stringBuffer!!, sbIdx)
-            val valIdx = tape.computeNextIndex(idx)
-            val nextKeyIdx = tape.computeNextIndex(valIdx)
-            if (len == keyBytes.size) {
-                val from = sbIdx + Int.SIZE_BYTES
-                if (regionEquals(keyBytes, 0, stringBuffer, from, len)) {
-                    return materializeTapeValue(tape, valIdx, stringBuffer)
-                }
-            }
-            idx = nextKeyIdx
-        }
-        return null
-    }
+    operator fun get(key: String): JsonValue? = entries.firstOrNull { it.first == key }?.second
 
     /** All keys in insertion order. */
-    fun keys(): Set<String> {
-        if (_entries != null) {
-            return _entries.mapTo(LinkedHashSet()) { it.first }
-        }
-        val result = LinkedHashSet<String>()
-        var idx = tapeIdx + 1
-        val endIdx = tape!!.getMatchingBraceIndex(tapeIdx) - 1
-        while (idx < endIdx) {
-            result.add(readStringFromTape(tape, idx, stringBuffer!!))
-            val valIdx = tape.computeNextIndex(idx)
-            idx = tape.computeNextIndex(valIdx)
-        }
-        return result
-    }
+    fun keys(): Set<String> = entries.mapTo(LinkedHashSet()) { it.first }
 
     /** Iterate over key-value pairs. */
-    override fun iterator(): Iterator<Pair<String, JsonValue>> {
-        if (_entries != null) return _entries.iterator()
-        return TapeObjectIterator()
-    }
+    override fun iterator(): Iterator<Pair<String, JsonValue>> = entries.iterator()
 
     /** Check if key exists. */
     operator fun contains(key: String): Boolean = get(key) != null
-
-    private inner class TapeObjectIterator : Iterator<Pair<String, JsonValue>> {
-        private var idx = tapeIdx + 1
-        private val endIdx = tape!!.getMatchingBraceIndex(tapeIdx) - 1
-
-        override fun hasNext(): Boolean = idx < endIdx
-
-        override fun next(): Pair<String, JsonValue> {
-            if (!hasNext()) throw NoSuchElementException("No more fields")
-            val key = readStringFromTape(tape!!, idx, stringBuffer!!)
-            idx = tape.computeNextIndex(idx)
-            val value = materializeTapeValue(tape, idx, stringBuffer)
-            idx = tape.computeNextIndex(idx)
-            return key to value
-        }
-    }
 }
 
 /**
  * JSON array: [value, ...]
  */
-class JsonArray private constructor(
-    private val tape: Tape?,
-    private val tapeIdx: Int,
-    private val stringBuffer: ByteArray?,
-    private val _elements: List<JsonValue>?
+class JsonArray internal constructor(
+    private val elements: List<JsonValue>
 ) : JsonValue, Iterable<JsonValue> {
-
-    internal constructor(tape: Tape, tapeIdx: Int, stringBuffer: ByteArray)
-        : this(tape, tapeIdx, stringBuffer, null)
-
-    internal constructor(elements: List<JsonValue>)
-        : this(null, 0, null, elements)
 
     /** Number of elements. */
     val size: Int
-        get() = _elements?.size ?: tape!!.getScopeCount(tapeIdx)
+        get() = elements.size
 
     /** Get element by index. Throws [IndexOutOfBoundsException]. */
-    operator fun get(index: Int): JsonValue {
-        if (_elements != null) {
-            return _elements[index]
-        }
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index $index, size $size")
-        var idx = tapeIdx + 1
-        repeat(index) { idx = tape!!.computeNextIndex(idx) }
-        return materializeTapeValue(tape!!, idx, stringBuffer!!)
-    }
+    operator fun get(index: Int): JsonValue = elements[index]
 
     /** Iterate over elements. */
-    override fun iterator(): Iterator<JsonValue> {
-        if (_elements != null) return _elements.iterator()
-        return TapeArrayIterator()
-    }
-
-    private inner class TapeArrayIterator : Iterator<JsonValue> {
-        private var idx = tapeIdx + 1
-        private val endIdx = tape!!.getMatchingBraceIndex(tapeIdx) - 1
-
-        override fun hasNext(): Boolean = idx < endIdx
-
-        override fun next(): JsonValue {
-            if (!hasNext()) throw NoSuchElementException("No more elements")
-            val value = materializeTapeValue(tape!!, idx, stringBuffer!!)
-            idx = tape.computeNextIndex(idx)
-            return value
-        }
-    }
+    override fun iterator(): Iterator<JsonValue> = elements.iterator()
 }
 
 /**
@@ -246,10 +150,3 @@ value class JsonBoolean(val value: Boolean) : JsonValue
  * JSON null literal.
  */
 data object JsonNull : JsonValue
-
-private fun regionEquals(a: ByteArray, aOffset: Int, b: ByteArray, bOffset: Int, length: Int): Boolean {
-    for (i in 0 until length) {
-        if (a[aOffset + i] != b[bOffset + i]) return false
-    }
-    return true
-}
