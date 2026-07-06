@@ -581,11 +581,46 @@ class DomParsingTest {
     fun `parser reuse`() {
         val parser = SimdJsonParser()
 
-        val r1 = parser.parse("[1, 2]").shouldBeInstanceOf<JsonArray>()
-        r1.size shouldBe 2
+        val r1 = parser.parse("""{"name": "first", "items": [1, 2, 3], "flag": true}""").shouldBeInstanceOf<JsonObject>()
+        r1.size shouldBe 3
 
-        val r2 = parser.parse("""{"x": 99}""").shouldBeInstanceOf<JsonObject>()
-        (r2["x"] as JsonNumber).toLong() shouldBe 99L
+        val r2 = parser.parse("""["other", {"x": 99}, null]""").shouldBeInstanceOf<JsonArray>()
+
+        r1.size shouldBe 3
+        (r1["name"] as JsonString).value shouldBe "first"
+        val items = r1["items"].shouldBeInstanceOf<JsonArray>()
+        items.size shouldBe 3
+        (items[0] as JsonNumber).toLong() shouldBe 1L
+        (items[2] as JsonNumber).toLong() shouldBe 3L
+        (r1["flag"] as JsonBoolean).value shouldBe true
+
+        r2.size shouldBe 3
+        (r2[0] as JsonString).value shouldBe "other"
+        ((r2[1] as JsonObject)["x"] as JsonNumber).toLong() shouldBe 99L
+        r2[2] shouldBe JsonNull
+    }
+
+    @Test
+    fun `dom result survives iterate on same parser`() {
+        val parser = SimdJsonParser()
+        val r1 = parser.parse("""{"a": [1, {"b": "text"}]}""").shouldBeInstanceOf<JsonObject>()
+
+        parser.iterate("\"zz\"").use { it.getString() shouldBe "zz" }
+
+        val arr = r1["a"].shouldBeInstanceOf<JsonArray>()
+        arr.size shouldBe 2
+        ((arr[1] as JsonObject)["b"] as JsonString).value shouldBe "text"
+    }
+
+    @Test
+    fun `dom result survives parser close`() {
+        val parser = SimdJsonParser()
+        val r = parser.parse("""{"k": ["v", 42]}""").shouldBeInstanceOf<JsonObject>()
+        parser.close()
+
+        val arr = r["k"].shouldBeInstanceOf<JsonArray>()
+        (arr[0] as JsonString).value shouldBe "v"
+        (arr[1] as JsonNumber).toLong() shouldBe 42L
     }
 
     // --- ByteArray API ---
