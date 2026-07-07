@@ -1,9 +1,9 @@
 ---
 title: Home
-description: A Kotlin Multiplatform JSON parser based on simdjson — parse gigabytes of JSON per second.
+description: A Kotlin Multiplatform JSON parser based on simdjson, built to parse gigabytes of JSON per second.
 ---
 
-{{< hero title="Fast JSON parsing for Kotlin Multiplatform." gradient="for Kotlin Multiplatform." subtitle="simdjson-kotlin is a Kotlin Multiplatform port of simdjson — the JSON parser that uses SIMD instructions to parse gigabytes of JSON per second. Three APIs (DOM, On-Demand, kotlinx.serialization) across JVM, Android, Native and iOS." >}}
+{{< hero title="Fast JSON parsing for Kotlin Multiplatform." gradient="for Kotlin Multiplatform." subtitle="simdjson-kotlin is a Kotlin Multiplatform port of simdjson, the JSON parser that uses SIMD instructions to parse gigabytes of JSON per second. Three APIs (DOM, On-Demand, kotlinx.serialization) across JVM, Android, Native and iOS." >}}
 <a class="kt-button kt-button--primary kt-button--lg" href="getting-started/">Get started</a>
 <a class="kt-button kt-button--ghost kt-button--lg" href="guides/on-demand/">On-Demand API</a>
 {{< /hero >}}
@@ -18,7 +18,7 @@ Add the dependency, check the requirements, and parse your first document.
 Parse a whole document into an immutable in-memory tree of `JsonValue`s.
 {{< /card >}}
 {{< card title="On-Demand API" href="guides/on-demand/" icon="code" >}}
-Lazy, forward-only iteration — decode values only when accessed, no tree built.
+Lazy, forward-only iteration. Decode values only when accessed, no tree built.
 {{< /card >}}
 {{< card title="kotlinx.serialization" href="guides/serialization/" icon="puzzle" >}}
 Decode `@Serializable` classes directly from JSON on the JVM.

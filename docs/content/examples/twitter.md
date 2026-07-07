@@ -1,14 +1,14 @@
 ---
 title: Parsing twitter.json
-description: The same query solved three ways — DOM, On-Demand, and kotlinx.serialization.
+description: "The same query solved three ways: DOM, On-Demand, and kotlinx.serialization."
 weight: 10
 ---
 
-A classic simdjson benchmark input is `twitter.json` — a Twitter API response
+A classic simdjson benchmark input is `twitter.json`, a Twitter API response
 with a top-level `statuses` array. The task below is the same in every tab:
 **print the screen name of every user whose `default_profile` is `true`.**
 
-Each API expresses it differently — compare the three and pick the one that fits
+Each API expresses it differently. Compare the three and pick the one that fits
 your access pattern.
 
 {{< code-tabs >}}

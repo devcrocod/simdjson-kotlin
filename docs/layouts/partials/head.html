@@ -1,0 +1,37 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{{ with .Description }}<meta name="description" content="{{ . }}">{{ end }}
+{{- /* Pre-paint theme application — runs before <body> renders so the first paint
+       already carries the right theme. Tri-state: "light"/"dark" pin an explicit
+       data-theme; "auto" (or no saved value) leaves it OFF so the
+       prefers-color-scheme block in colors_and_type.css follows the OS live. */ -}}
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+    } catch (e) { /* storage blocked — fall back to the OS via prefers-color-scheme */ }
+  })();
+</script>
+{{- /* CSS bundle: colors_and_type → tokens → components → chroma → fonts → site.
+       fonts.css URLs are rewritten to ../fonts/* by `task hugo:build` so the
+       fingerprinted bundle (served from <baseURL>/css/) resolves them to
+       <baseURL>/fonts/ — correct under both root and sub-path baseURLs.
+       site.css is this project's own additions on top of the theme (kept out
+       of kotlin-docs-kit — see docs/assets/css/site.css). */ -}}
+{{ $colors     := resources.Get "css/colors_and_type.css" }}
+{{ $tokens     := resources.Get "css/tokens.css" }}
+{{ $components := resources.Get "css/components.css" }}
+{{ $chroma     := resources.Get "css/chroma.css" }}
+{{ $fonts      := resources.Get "css/fonts.css" }}
+{{ $site       := resources.Get "css/site.css" }}
+{{ $bundle := slice $colors $tokens $components $chroma $fonts $site
+              | resources.Concat "css/bundle.css"
+              | resources.Minify
+              | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $bundle.RelPermalink }}" integrity="{{ $bundle.Data.Integrity }}">
+<link rel="icon" href="{{ "img/kotlin-icon-color.svg" | relURL }}" type="image/svg+xml">

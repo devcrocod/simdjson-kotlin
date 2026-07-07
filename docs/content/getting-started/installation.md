@@ -31,7 +31,7 @@ optional `simdjson-kotlin-serialization` module adds
 ## Requirements
 
 {{< params >}}
-JVM|JDK 11+|On JDK 24+ the parser uses the pure-Kotlin Vector API backend — add `--add-modules jdk.incubator.vector` to enable it. On older JDKs, or when the Vector API is unavailable, it transparently falls back to a JNI backend with bundled native simdjson libraries (pulled in transitively via `simdjson-kotlin-jni-runtime`).
+JVM|JDK 11+|On JDK 24+ the parser uses the pure-Kotlin Vector API backend. Add `--add-modules jdk.incubator.vector` to enable it. On older JDKs, or when the Vector API is unavailable, it transparently falls back to a JNI backend with bundled native simdjson libraries (pulled in transitively via `simdjson-kotlin-jni-runtime`).
 Android|minSdk 26|Uses the JNI backend.
 Kotlin|2.4|The library is built with Kotlin 2.4.
 {{< /params >}}

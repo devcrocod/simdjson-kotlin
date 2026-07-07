@@ -1,0 +1,29 @@
+/* Plain markdown tables (the theme only styles the {{< params >}} shortcode's
+   .kt-params table) — mirror that look so a `| Target | ... |` table doesn't
+   fall back to unstyled browser defaults. */
+.kt-docs-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  margin: 16px 0;
+}
+.kt-docs-article th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+  text-align: left;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-1);
+  background: var(--surface-2);
+}
+.kt-docs-article td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-1);
+  vertical-align: top;
+  color: var(--fg-1);
+  line-height: 1.55;
+}

@@ -5,7 +5,7 @@ weight: 20
 ---
 
 Create a `SimdJsonParser`, parse some JSON, and read values out of the result.
-The parser holds native resources on some backends, so always close it — the
+The parser holds native resources on some backends, so always close it. The
 idiomatic way is Kotlin's [`use`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/use.html).
 
 ## DOM: parse into a tree
@@ -28,7 +28,7 @@ SimdJsonParser().use { parser ->
 
 ## On-Demand: decode only what you touch
 
-`iterate` returns a lazy, forward-only document — values are decoded only when
+`iterate` returns a lazy, forward-only document. Values are decoded only when
 you access them, and nothing builds a full tree:
 
 ```kotlin
@@ -45,8 +45,8 @@ SimdJsonParser().use { parser ->
 {{< callout type="note" title="Which API should I use?" >}}
 Reach for the [DOM API](../../guides/dom/) when you need random access or want
 to keep the parsed values around. Reach for the
-[On-Demand API](../../guides/on-demand/) when you read each field once, in order
-— it's faster and allocates far less. On the JVM you can also decode straight
-into `@Serializable` classes with the
+[On-Demand API](../../guides/on-demand/) when you read each field once, in
+order: it's faster and allocates far less. On the JVM you can also decode
+straight into `@Serializable` classes with the
 [serialization module](../../guides/serialization/).
 {{< /callout >}}
