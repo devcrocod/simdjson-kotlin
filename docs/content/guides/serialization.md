@@ -67,7 +67,7 @@ serializersModule|SerializersModule|Register contextual or polymorphic serialize
 ## Decoding only
 
 {{< callout type="important" title="Parser, not a full format" >}}
-simdjson-kotlin is a **parser** — `SimdJson` decodes only. `encodeToString` throws
+simdjson-kotlin is a **parser**: `SimdJson` decodes only. `encodeToString` throws
 `UnsupportedOperationException`. Use
 [`kotlinx.serialization.json`](https://github.com/Kotlin/kotlinx.serialization)
 for encoding. Decoding failures throw `SimdJsonDecodingException` (a

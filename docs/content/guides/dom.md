@@ -6,7 +6,7 @@ weight: 10
 
 The DOM API parses an entire document into an immutable in-memory tree. Every
 node is a [`JsonValue`](#the-jsonvalue-tree) you can navigate and re-read
-freely — random access, multiple passes, no ordering constraints.
+freely: random access, multiple passes, no ordering constraints.
 
 ## Parsing
 
@@ -42,7 +42,7 @@ an optional `length`, so you can reuse an oversized buffer:
 JsonObject|Iterable<Pair<String, JsonValue>>|Keyed map: `get(key): JsonValue?`, `size`, `keys(): Set<String>`, `key in obj`, and iteration over `(key, value)` pairs.
 JsonArray|Iterable<JsonValue>|Ordered list: `get(index): JsonValue`, `size`, and iteration over elements.
 JsonString|value class|Wraps `value: String`.
-JsonNumber|—|A number that remembers its representation — see [Numbers](#numbers).
+JsonNumber|—|A number that remembers its representation (see [Numbers](#numbers)).
 JsonBoolean|value class|Wraps `value: Boolean`.
 JsonNull|object|The `null` literal (a singleton).
 {{< /params >}}
@@ -80,10 +80,10 @@ toDouble()|—|Floating-point view of the value.
 
 ## Lifetime
 
-The DOM tree is fully materialized and **independent of the parser** — it stays
-valid after later `parse`/`iterate` calls and after the parser is closed. You
-still close the *parser* itself — it owns reusable buffers and, on Native,
-native memory — and `use { }` does that for you.
+The DOM tree is fully materialized and **independent of the parser**. It stays
+valid after later `parse`/`iterate` calls and even after the parser is closed.
+The *parser* itself still needs closing, since it owns reusable buffers and,
+on Native, native memory. `use { }` does that for you.
 
 {{< callout type="note" title="Reuse the parser" >}}
 `SimdJsonParser` is **not thread-safe**. Reuse one instance per thread to

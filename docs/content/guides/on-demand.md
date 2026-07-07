@@ -1,11 +1,11 @@
 ---
 title: On-Demand API
-description: Lazy, forward-only iteration — decode values only when accessed, without building a tree.
+description: Lazy, forward-only iteration, decoding values only when accessed, without building a tree.
 weight: 20
 ---
 
 The On-Demand API decodes values lazily as you touch them. Nothing builds a full
-tree, so it's faster and allocates far less than the [DOM](../dom/) — at the
+tree, so it's faster and allocates far less than the [DOM](../dom/), at the
 cost of forward-only access.
 
 ## Iterating
@@ -35,7 +35,7 @@ getters:
 {{< params >}}
 JsonDocument|AutoCloseable|Root value: `getObject()`, `getArray()`, `getString()`, `getLong()`, `getULong()`, `getDouble()`, `getBoolean()`, `isNull()`, `getType()`.
 OnDemandObject|Iterable<OnDemandField>|Forward-only object. `obj["field"]` and `obj.findField("field")` both return an `OnDemandValue`.
-OnDemandArray|Iterable<OnDemandValue>|Forward-only array — iterate to read its elements.
+OnDemandArray|Iterable<OnDemandValue>|Forward-only array. Iterate to read its elements.
 OnDemandValue|AutoCloseable|A not-yet-decoded value: the same typed getters as `JsonDocument`, plus `materialize()`.
 OnDemandField|—|A single object entry: `name` and `value`.
 {{< /params >}}
@@ -53,7 +53,7 @@ On-Demand trades random access for speed. Three rules follow from that:
 
 {{< callout type="important" title="Consume in order, once" >}}
 - Read fields and elements in the order they appear in the document.
-- An object or array is **consumed by iterating it** — iterate it once.
+- An object or array is **consumed by iterating it**, so iterate it only once.
 - Finish with a value before moving on to its sibling.
 
 Breaking these throws a `JsonIterationException`. When a typed getter meets the
@@ -63,7 +63,7 @@ carrying the `expected` and `actual` types.
 
 ## Lifecycle
 
-The `JsonDocument`, and every value it yields, live on the parser's buffers — so
+The `JsonDocument`, and every value it yields, live on the parser's buffers, so
 close the document when you're done. `iterate(json).use { doc -> … }` does that,
 and closing the parser closes everything under it. Both are `AutoCloseable`.
 
