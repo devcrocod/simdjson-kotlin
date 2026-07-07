@@ -60,8 +60,8 @@ val text: String? = when (val v = parser.parse(json)) {
 }
 ```
 
-`get` on a `JsonObject` returns `JsonValue?` (`null` when the key is absent);
-indexing a `JsonArray` returns a non-null `JsonValue`. Casting to the wrong
+`get` on a `JsonObject` returns `JsonValue?` (`null` when the key is absent).
+Indexing a `JsonArray` returns a non-null `JsonValue`. Casting to the wrong
 subtype throws a `ClassCastException`, so guard with `as?` or an `is` check when
 the shape is uncertain.
 
@@ -82,8 +82,8 @@ toDouble()|—|Floating-point view of the value.
 
 The DOM tree is fully materialized and **independent of the parser** — it stays
 valid after later `parse`/`iterate` calls and after the parser is closed. You
-still close the *parser* itself (it owns reusable buffers and, on Native, native
-memory); `use { }` does that for you.
+still close the *parser* itself — it owns reusable buffers and, on Native,
+native memory — and `use { }` does that for you.
 
 {{< callout type="note" title="Reuse the parser" >}}
 `SimdJsonParser` is **not thread-safe**. Reuse one instance per thread to

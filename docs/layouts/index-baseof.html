@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="{{ default "en" site.Language.Lang }}">
+  <head>
+    {{ partial "head.html" . }}
+    <title>{{ .Site.Title }}</title>
+  </head>
+  <body>
+    {{ partial "header.html" . }}
+    {{ partial "drawer.html" . }}
+    <main class="kt-docs-shell__main">
+      <div data-pagefind-body>
+        {{ block "main" . }}{{ end }}
+      </div>
+    </main>
+    {{ partial "footer.html" . }}
+    {{ $theme := resources.Get "js/theme.js" | resources.Minify | resources.Fingerprint }}
+    <script defer src="{{ $theme.RelPermalink }}" integrity="{{ $theme.Data.Integrity }}"></script>
+    {{ $nav := resources.Get "js/nav.js" | resources.Minify | resources.Fingerprint }}
+    <script defer src="{{ $nav.RelPermalink }}" integrity="{{ $nav.Data.Integrity }}"></script>
+    {{ $copyPage := resources.Get "js/copy-page.js" | resources.Minify | resources.Fingerprint }}
+    <script defer src="{{ $copyPage.RelPermalink }}" integrity="{{ $copyPage.Data.Integrity }}"></script>
+    {{ $search := resources.Get "js/search.js" | resources.Minify | resources.Fingerprint }}
+    <script defer src="{{ $search.RelPermalink }}" integrity="{{ $search.Data.Integrity }}"></script>
+  </body>
+</html>
