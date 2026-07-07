@@ -25,16 +25,25 @@ jobs:
 
       - uses: actions/download-artifact@v8
         with:
-          merge-multiple: true
+          path: artifacts
 
-      - name: Copy Android natives to jniLibs
+      - name: Stage native libraries
         run: |
-          mkdir -p simdjson-kotlin/src/androidMain/jniLibs/arm64-v8a
-          mkdir -p simdjson-kotlin/src/androidMain/jniLibs/x86_64
-          cp simdjson-native/build-android-arm64-v8a/libsimdjson_jni.so \
-             simdjson-kotlin/src/androidMain/jniLibs/arm64-v8a/
-          cp simdjson-native/build-android-x86_64/libsimdjson_jni.so \
-             simdjson-kotlin/src/androidMain/jniLibs/x86_64/
+          # actions/upload-artifact roots each artifact at the least-common-ancestor
+          # of its paths, so the simdjson-native/ prefix (and, for single-file
+          # artifacts, the whole directory) is stripped. Reconstruct the layout the
+          # Gradle publish expects. Host-native libraries (macos-arm64 JNI, macOS/iOS
+          # Kotlin/Native .a) are rebuilt on this runner, so only the cross-compiled
+          # libraries are staged here.
+          stage() { mkdir -p "$(dirname "$2")"; cp "$1" "$2"; }
+
+          stage artifacts/native-jni-linux-x64/libsimdjson_jni.so   simdjson-native/build-jvm-linux-x64/libsimdjson_jni.so
+          stage artifacts/native-jni-linux-arm64/libsimdjson_jni.so simdjson-native/build-jvm-linux-arm64/libsimdjson_jni.so
+          stage artifacts/native-jni-windows-x64/simdjson_jni.dll   simdjson-native/build-jvm-windows-x64/simdjson_jni.dll
+          stage artifacts/native-kn-linux-x64/libsimdjson_c.a       simdjson-native/build-linux-x64/libsimdjson_c.a
+
+          stage artifacts/native-android/build-android-arm64-v8a/libsimdjson_jni.so simdjson-kotlin/src/androidMain/jniLibs/arm64-v8a/libsimdjson_jni.so
+          stage artifacts/native-android/build-android-x86_64/libsimdjson_jni.so    simdjson-kotlin/src/androidMain/jniLibs/x86_64/libsimdjson_jni.so
 
       - name: Publish
         run: ./gradlew publishToMavenCentral -Psimdjson.allTargets=true
