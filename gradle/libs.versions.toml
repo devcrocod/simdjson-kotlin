@@ -1,6 +1,6 @@
 [versions]
 simdjson = "0.1.0"
-agp = "9.3.2"
+agp = "9.4.0"
 kotlin = "2.4.10"
 android-minSdk = "26"
 android-compileSdk = "35"
