@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run JVM tests (Vector API backend)
         run: ./gradlew :simdjson-kotlin:jvmTest
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run JVM tests (JNI backend)
         run: ./gradlew :simdjson-kotlin:jvmTestJni
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       # Kotlin/Native's linuxX64 sysroot ships an old libstdc++ without
       # std::__throw_bad_array_new_length (GLIBCXX_3.4.29 / GCC 11+). Build the C++
@@ -91,7 +91,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run iOS simulator tests
         run: ./gradlew :simdjson-kotlin:iosSimulatorArm64Test
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run Android host tests
         run: ./gradlew :simdjson-kotlin:testAndroidHostTest
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run serialization tests
         run: ./gradlew :simdjson-kotlin-serialization:allTests
@@ -145,7 +145,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Publish library + JNI runtime to mavenLocal (host native only)
         run: >
